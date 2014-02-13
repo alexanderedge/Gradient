@@ -5,7 +5,7 @@ Gradient is a free application to create gorgeous wallpapers for iPhone and iPad
 Design and concept by [@byedit][nitzan-twitter], code by [@alexedge][alex-twitter].
 
 ## License
-See License.md
+See [License.md](License.md)
 
 ## Instructions
 
