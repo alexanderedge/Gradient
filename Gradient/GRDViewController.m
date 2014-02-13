@@ -29,9 +29,9 @@
 
 @implementation GRDViewController
 
-static CGFloat kGradientScale = 2.f;
-static CGFloat kInfoButtonSideLength = 44.f;
-static CGFloat kInfoButtonMargin = 10.f;
+static CGFloat const kGradientScale = 2.f;
+static CGFloat const kInfoButtonSideLength = 44.f;
+static CGFloat const kInfoButtonMargin = 10.f;
 
 static NSURL * kTwitterURLForUsername(NSString *username){
     
