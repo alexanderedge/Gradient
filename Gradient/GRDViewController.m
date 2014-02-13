@@ -230,6 +230,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
             UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:@[gradient,@"#gradient"] applicationActivities:nil];
             vc.excludedActivityTypes = @[UIActivityTypeSaveToCameraRoll];
             vc.completionHandler = ^ (NSString *activityType, BOOL completed){
+                DDLogInfo(@"Shared %@ - completed %@",activityType, completed ? @"YES" : @"NO");
             };
             [self presentViewController:vc animated:YES completion:nil];
         }];
