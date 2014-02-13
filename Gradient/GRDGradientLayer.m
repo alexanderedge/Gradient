@@ -32,7 +32,7 @@ static NSUInteger const kNumberOfColours = 4;
     NSMutableArray *locations = [NSMutableArray array];
     for (NSUInteger i = 0; i < kNumberOfColours; i++) {
         [colours addObject:(id)[[UIColor grd_randomColor] CGColor]];
-        [locations addObject:@((1.f / (CGFloat)kNumberOfColours) * i)];
+        [locations addObject:@((1.f / ((CGFloat)kNumberOfColours - 1)) * i)];
     }
     CGPoint newStartPoint = CGPointMake(arc4random_uniform(100)/100.f,0.f);
     if (animated) {
