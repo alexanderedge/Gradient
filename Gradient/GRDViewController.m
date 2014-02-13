@@ -227,7 +227,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
         UIImageWriteToSavedPhotosAlbum(gradient, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
         [self showInfoButton];
         [self showShareButtonWithHandler:^{
-            UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:@[gradient] applicationActivities:nil];
+            UIActivityViewController *vc = [[UIActivityViewController alloc] initWithActivityItems:@[gradient,@"#gradient"] applicationActivities:nil];
             vc.excludedActivityTypes = @[UIActivityTypeSaveToCameraRoll];
             vc.completionHandler = ^ (NSString *activityType, BOOL completed){
             };
