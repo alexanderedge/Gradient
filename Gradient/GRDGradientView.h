@@ -8,6 +8,7 @@
 
 @interface GRDGradientView : UIView
 
+@property (nonatomic) CGFloat rotation;
 - (void)changeGradient:(BOOL)animated;
 
 @end

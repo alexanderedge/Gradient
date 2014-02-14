@@ -9,6 +9,9 @@
 #import "GRDGradientView.h"
 #import "GRDGradientLayer.h"
 
+@interface GRDGradientView()
+@end
+
 @implementation GRDGradientView
 
 - (id)initWithFrame:(CGRect)frame{
@@ -25,6 +28,11 @@
 
 - (void)changeGradient:(BOOL)animated{
     [(GRDGradientLayer *)self.layer grd_changeGradient:animated];
+}
+
+- (void)setRotation:(CGFloat)rotation{
+    _rotation = rotation;
+    [(GRDGradientLayer *)self.layer grd_rotate:rotation];
 }
 
 @end
