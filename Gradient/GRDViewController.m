@@ -15,7 +15,7 @@
 
 @import AudioToolbox;
 @import AssetsLibrary;
-@interface GRDViewController () <GRDShakeScrollViewDelegate>
+@interface GRDViewController () <GRDShakeScrollViewDelegate,UIScrollViewDelegate,UIGestureRecognizerDelegate>
 @property (nonatomic, strong) GRDShakeScrollView *scrollView;
 @property (nonatomic, strong) GRDGradientView *gradientView;
 @property (nonatomic) BOOL saving;
@@ -53,6 +53,28 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     self.scrollView.shakeDelegate = self;
     [self showInstructions];
     [self.scrollView becomeFirstResponder];
+    UIRotationGestureRecognizer *rotationGestureRecogniser = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(rotationGestureRecogniser:)];
+    [self.view addGestureRecognizer:rotationGestureRecogniser];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    return YES;
+}
+
+- (void)rotationGestureRecogniser:(UIRotationGestureRecognizer *)recogniser{
+    switch ([recogniser state]) {
+        case UIGestureRecognizerStateBegan:
+        case UIGestureRecognizerStateChanged:
+        {
+            CGFloat rotation = self.gradientView.rotation + recogniser.rotation;
+            DDLogInfo(@"rotation: %f",rotation);
+            [self.gradientView setRotation:rotation];
+            [recogniser setRotation:0];
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 #pragma mark - 'i' button
@@ -197,6 +219,10 @@ static NSURL * kTwitterURLForUsername(NSString *username){
         [_scrollView addSubview:self.gradientView];
         [_scrollView setContentSize:self.gradientView.frame.size];
         [_scrollView setContentOffset:CGPointMake(CGRectGetMidX(_scrollView.bounds), CGRectGetMidY(_scrollView.bounds))];
+        [_scrollView setZoomScale:1];
+        [_scrollView setMaximumZoomScale:4];
+        [_scrollView setMinimumZoomScale:1];
+        [_scrollView setDelegate:self];
         [self.view addSubview:_scrollView];
     }
     return _scrollView;
@@ -297,5 +323,12 @@ static CGFloat const kSaveIndicatorScale = 0.01f;
         }];
     }
 }
+
+#pragma mark - UIScrollViewDelegate 
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+    return self.gradientView;
+}
+
 
 @end
