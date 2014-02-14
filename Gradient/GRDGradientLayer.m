@@ -40,11 +40,11 @@ static CGFloat GRDRandomAngle() {
 }
 
 static CGPoint GRDStartPointForAngle (CGFloat angle){
-    return CGPointMake(sinf(-angle + M_PI) + .5f, cosf(-angle + M_PI) + 1);
+    return CGPointMake(.5f + (sinf(angle) / 2.f), .5f - cosf(angle) / 2.f);
 }
 
 static CGPoint GRDEndPointForAngle (CGFloat angle){
-    return CGPointMake(sinf(-angle) + .5f, cosf(-angle));
+    return CGPointMake(.5f - (sinf(angle) / 2.f), .5f + (cosf(angle) / 2.f));
 }
 
 - (void)grd_changeGradient:(BOOL)animated{
