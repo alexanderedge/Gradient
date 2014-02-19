@@ -18,7 +18,6 @@
 @interface GRDViewController () <GRDShakeScrollViewDelegate,UIScrollViewDelegate,UIGestureRecognizerDelegate>
 @property (nonatomic, strong) GRDShakeScrollView *scrollView;
 @property (nonatomic, strong) GRDGradientView *gradientView;
-@property (nonatomic) BOOL saving;
 
 //  set these properties as weak so that the pointer is set to nil after
 //  they are removed from their superview
@@ -248,7 +247,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
 
 - (void)tapped{
     DDLogInfo(@"Tapping!");
-    if (!self.saving && !_savingIndicator && !_creditsTextView) {
+    if (!_savingIndicator && !_creditsTextView) {
         UIImage *gradient = [self.scrollView grd_screenshot];
         UIImageWriteToSavedPhotosAlbum(gradient, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
         [self showInfoButton];
@@ -257,6 +256,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
             vc.excludedActivityTypes = @[UIActivityTypeSaveToCameraRoll];
             vc.completionHandler = ^ (NSString *activityType, BOOL completed){
                 DDLogInfo(@"Shared %@ - completed %@",activityType, completed ? @"YES" : @"NO");
+                [self.scrollView becomeFirstResponder];
             };
             [self presentViewController:vc animated:YES completion:nil];
         }];
