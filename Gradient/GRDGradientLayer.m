@@ -21,18 +21,9 @@ static NSTimeInterval const kAnimationDuration = 0.3f;
 - (id)init{
     self = [super init];
     if (self) {
-        NSMutableArray *locations = [NSMutableArray array];
-        for (NSUInteger i = 0; i < kNumberOfColours; i++) {
-            [locations addObject:@((.5f / ((CGFloat)kNumberOfColours - 1)) * i + .25f)];
-        }
-        self.locations = [locations copy];
         [self grd_changeGradient:NO];
     }
     return self;
-}
-
-static CGFloat GRDRandomAngle() {
-    return (CGFloat)arc4random_uniform(1000) / 1000.f * M_PI;
 }
 
 static CGPoint GRDStartPointForAngle (CGFloat angle){
@@ -46,13 +37,9 @@ static CGPoint GRDEndPointForAngle (CGFloat angle){
 - (void)grd_changeGradient:(BOOL)animated{
     
     NSMutableArray *colours = [NSMutableArray array];
-    for (NSUInteger i = 0; i < self.locations.count; i++) {
+    for (NSUInteger i = 0; i < kNumberOfColours; i++) {
         [colours addObject:(id)[[UIColor grd_randomColor] CGColor]];
     }
-    
-    CGFloat angle = GRDRandomAngle();
-    CGPoint newStartPoint = GRDStartPointForAngle(angle);
-    CGPoint newEndPoint = GRDEndPointForAngle(angle);
     
     if (animated) {
         CABasicAnimation *colorAnimation = [CABasicAnimation animationWithKeyPath:@"colors"];
@@ -60,20 +47,8 @@ static CGPoint GRDEndPointForAngle (CGFloat angle){
         colorAnimation.toValue = colours;
         colorAnimation.duration = kAnimationDuration;
         [self addAnimation:colorAnimation forKey:@"changeColors"];
-        CABasicAnimation *startPointAnimation = [CABasicAnimation animationWithKeyPath:@"startPoint"];
-        startPointAnimation.fromValue = [NSValue valueWithCGPoint:self.startPoint];
-        startPointAnimation.toValue = [NSValue valueWithCGPoint:newStartPoint];
-        startPointAnimation.duration = kAnimationDuration;
-        [self addAnimation:startPointAnimation forKey:@"changeStartPoint"];
-        CABasicAnimation *endPointAnimation = [CABasicAnimation animationWithKeyPath:@"endPoint"];
-        startPointAnimation.fromValue = [NSValue valueWithCGPoint:self.endPoint];
-        startPointAnimation.toValue = [NSValue valueWithCGPoint:newEndPoint];
-        startPointAnimation.duration = kAnimationDuration;
-        [self addAnimation:endPointAnimation forKey:@"changeEndPoint"];
     }
     
-    self.startPoint = newStartPoint;
-    self.endPoint = newEndPoint;
     self.colors = colours;
     
 }

@@ -14,6 +14,10 @@
 
 @implementation GRDGradientView
 
+static CGFloat GRDRandomAngle() {
+    return (CGFloat)arc4random_uniform(1000) / 1000.f * M_PI;
+}
+
 - (id)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
@@ -28,6 +32,7 @@
 
 - (void)changeGradient:(BOOL)animated{
     [(GRDGradientLayer *)self.layer grd_changeGradient:animated];
+    [self setRotation:GRDRandomAngle()];
 }
 
 - (void)setRotation:(CGFloat)rotation{
