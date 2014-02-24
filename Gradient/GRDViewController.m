@@ -284,7 +284,7 @@ static CGFloat GRDRandomZoomScale(){
 - (void)tapped{
     DDLogInfo(@"Tapping!");
     if (!_savingIndicator && !_creditsTextView) {
-        UIImage *gradient = [self.gradientView grd_screenshot];
+        UIImage *gradient = [self.view grd_screenshot];
         UIImageWriteToSavedPhotosAlbum(gradient, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
         [self showInfoButton];
         [self showShareButtonWithHandler:^{
@@ -333,9 +333,9 @@ static CGFloat const kSaveIndicatorScale = 0.01f;
 - (GRDCircularButton *)savingIndicator{
     if (!_savingIndicator) {
         GRDCircularButton *savingIndicator = [[GRDCircularButton alloc] initWithFrame:CGRectMake(0, 0, kSavedIndicatorDiameter, kSavedIndicatorDiameter)];
-        savingIndicator.center = self.gradientView.center;
+        savingIndicator.center = self.view.center;
         [self.view addSubview:savingIndicator];
-        self.savingIndicator = savingIndicator;
+        _savingIndicator = savingIndicator;
     }
     return _savingIndicator;
 }
@@ -356,6 +356,7 @@ static CGFloat const kSaveIndicatorScale = 0.01f;
             self.savingIndicator.transform = CGAffineTransformMakeScale(kSaveIndicatorScale,kSaveIndicatorScale);
         } completion:^(BOOL finished) {
             [self.savingIndicator removeFromSuperview];
+            self.savingIndicator = nil;
         }];
     }
 }
