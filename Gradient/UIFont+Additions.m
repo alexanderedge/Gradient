@@ -10,7 +10,7 @@
 
 @implementation UIFont (Additions)
 
-+ (UIFont *)themeFontOfSize:(CGFloat)size{
++ (UIFont *)grd_fontOfSize:(CGFloat)size{
     return [UIFont fontWithName:@"Avenir Next Condensed Ultra Light" size:size];
 }
 

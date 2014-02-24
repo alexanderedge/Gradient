@@ -35,7 +35,7 @@ static CGFloat const kGradientDefaultScale = 2.f;
 static CGFloat const kInfoButtonSideLength = 44.f;
 static CGFloat const kInfoButtonMargin = 10.f;
 
-static NSURL * kTwitterURLForUsername(NSString *username){
+static NSURL * GRDTwitterURLForUsername(NSString *username){
     
     if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot://"]]) {
         return [NSURL URLWithString:[NSString stringWithFormat:@"tweetbot:///user_profile/%@",username]];
@@ -49,7 +49,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/%@",username]];
 }
 
-static CGFloat kRandomZoomScale(){
+static CGFloat GRDRandomZoomScale(){
     return arc4random_uniform(1000) / 1000.f * (kMaximumZoomScale - kMinimumZoomScale) + kMinimumZoomScale;
 }
 
@@ -190,19 +190,19 @@ static CGFloat kRandomZoomScale(){
         textView.textAlignment = NSTextAlignmentCenter;
         textView.textContainer.lineFragmentPadding = 0;
         textView.textContainerInset = UIEdgeInsetsMake(50.f, 10.f, 50.f, 10.f);
-        textView.linkTextAttributes = @{NSFontAttributeName : [UIFont themeFontOfSize:42.f],NSForegroundColorAttributeName : [UIColor whiteColor], NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle), NSUnderlineColorAttributeName : [UIColor whiteColor]};
+        textView.linkTextAttributes = @{NSFontAttributeName : [UIFont grd_fontOfSize:42.f],NSForegroundColorAttributeName : [UIColor whiteColor], NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle), NSUnderlineColorAttributeName : [UIColor whiteColor]};
         
         NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.alignment = NSTextAlignmentCenter;
         
-        NSDictionary *commonAttributes = @{NSFontAttributeName : [UIFont themeFontOfSize:42.f],NSParagraphStyleAttributeName: paragraphStyle, NSForegroundColorAttributeName : [UIColor whiteColor]};
+        NSDictionary *commonAttributes = @{NSFontAttributeName : [UIFont grd_fontOfSize:42.f],NSParagraphStyleAttributeName: paragraphStyle, NSForegroundColorAttributeName : [UIColor whiteColor]};
         
         NSString *labelString = NSLocalizedString(@"Gradient is a Nitzan Hermon and Alex Edge collaboration", nil);
         
         NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:labelString attributes:commonAttributes];
         
-        [str setAttributes:@{NSLinkAttributeName : kTwitterURLForUsername(@"byedit"),NSFontAttributeName : [UIFont themeFontOfSize:42.f]} range:[labelString rangeOfString:@"Nitzan Hermon"]];
-        [str setAttributes:@{NSLinkAttributeName : kTwitterURLForUsername(@"alexedge"),NSFontAttributeName : [UIFont themeFontOfSize:42.f],} range:[labelString rangeOfString:@"Alex Edge"]];
+        [str setAttributes:@{NSLinkAttributeName : GRDTwitterURLForUsername(@"byedit"),NSFontAttributeName : [UIFont grd_fontOfSize:42.f]} range:[labelString rangeOfString:@"Nitzan Hermon"]];
+        [str setAttributes:@{NSLinkAttributeName : GRDTwitterURLForUsername(@"alexedge"),NSFontAttributeName : [UIFont grd_fontOfSize:42.f],} range:[labelString rangeOfString:@"Alex Edge"]];
         textView.attributedText = str;
         [textView sizeToFit];
         textView.center = self.view.center;
@@ -232,7 +232,7 @@ static CGFloat kRandomZoomScale(){
 }
 
 - (UILabel *)labelWithString:(NSString *)str{
-    UIFont *font = [UIFont themeFontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 52.f : 26.f];
+    UIFont *font = [UIFont grd_fontOfSize:UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 52.f : 26.f];
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.bounds), font.lineHeight)];
     label.backgroundColor = [UIColor clearColor];
     label.textColor = [UIColor whiteColor];
@@ -277,7 +277,7 @@ static CGFloat kRandomZoomScale(){
     [self hideInfoButton];
     [self hideCredits];
     [self.gradientView changeGradient:YES];
-    self.scrollView.zoomScale = kRandomZoomScale();
+    self.scrollView.zoomScale = GRDRandomZoomScale();
     AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
 }
 

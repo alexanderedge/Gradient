@@ -20,7 +20,7 @@
         self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:.6f];
         self.titleLabel.numberOfLines = 0;
         self.titleLabel.textAlignment = NSTextAlignmentCenter;
-        self.titleLabel.font = [UIFont themeFontOfSize:17.0];
+        self.titleLabel.font = [UIFont grd_fontOfSize:17.0];
         self.titleLabel.center = self.center;
         self.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
         [self setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];

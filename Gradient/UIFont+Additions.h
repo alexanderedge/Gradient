@@ -10,6 +10,6 @@
 
 @interface UIFont (Additions)
 
-+ (UIFont *)themeFontOfSize:(CGFloat)size;
++ (UIFont *)grd_fontOfSize:(CGFloat)size;
 
 @end
