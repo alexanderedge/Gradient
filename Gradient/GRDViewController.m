@@ -14,14 +14,8 @@
 
 @import AudioToolbox;
 @import AssetsLibrary;
-@interface GRDViewController () <GRDShakeDelegate, UIGestureRecognizerDelegate>
-{
-    CGFloat _currentScale;
-    CGFloat _currentRotation;
-    CGPoint _currentTranslation;
-}
+@interface GRDViewController () <GRDShakeDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate>
 @property (nonatomic, strong) GRDGradientView *gradientView;
-
 //  set these properties as weak so that the pointer is set to nil after
 //  they are removed from their superview
 @property (nonatomic, weak) GRDCircularButton *savingIndicator;
@@ -29,8 +23,6 @@
 @property (nonatomic, weak) UIButton *infoButton;
 
 @property (nonatomic, strong) UIRotationGestureRecognizer *rotationGestureRecogniser;
-@property (nonatomic, strong) UIPinchGestureRecognizer *pinchGestureRecogniser;
-@property (nonatomic, strong) UIPanGestureRecognizer *panGestureRecogniser;
 
 @end
 
@@ -54,47 +46,44 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/%@",username]];
 }
 
-static CGAffineTransform kCGAffineTransformMakeScaleTranslation(CGFloat scale, CGPoint translation){
-    CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scale, scale);
-    CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(translation.x, translation.y);
-    return CGAffineTransformConcat(scaleTransform, translationTransform);
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+    return self.gradientView;
 }
 
-- (void)resetTransforms{
-    _currentScale = kGradientDefaultScale;
-    _currentTranslation = CGPointZero;
-    _currentRotation = arc4random_uniform(1000) / 1000.f * M_2_PI;
-    self.gradientView.rotation = _currentRotation;
-    self.gradientView.transform = kCGAffineTransformMakeScaleTranslation(_currentScale, _currentTranslation);
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
+    *targetContentOffset = scrollView.contentOffset;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self.view addSubview:self.gradientView];
-    [self.gradientView becomeFirstResponder];
-    
-    [self resetTransforms];
+    [self addScrollView];
     
     [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped)]];
-    
-    [self showInstructions];
     
     UIRotationGestureRecognizer *rotateGR = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecogniserDidChangeState:)];
     rotateGR.delegate = self;
     [self.gradientView addGestureRecognizer:rotateGR];
     self.rotationGestureRecogniser = rotateGR;
     
-    UIPinchGestureRecognizer *pinchGR = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecogniserDidChangeState:)];
-    pinchGR.delegate = self;
-    [self.gradientView addGestureRecognizer:pinchGR];
-    self.pinchGestureRecogniser = pinchGR;
-    
-    UIPanGestureRecognizer *panGR = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecogniserDidChangeState:)];
-    panGR.delegate = self;
-    [self.gradientView addGestureRecognizer:panGR];
-    self.panGestureRecogniser = panGR;
-    
+    [self showInstructions];
+    [self.gradientView becomeFirstResponder];
+}
+
+- (void)addScrollView{
+    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    scrollView.bounces = NO;
+    scrollView.bouncesZoom = NO;
+    scrollView.delegate = self;
+    scrollView.zoomScale = kGradientDefaultScale;
+    scrollView.maximumZoomScale = 4.f;
+    scrollView.minimumZoomScale = .5f;
+    scrollView.showsHorizontalScrollIndicator = NO;
+    scrollView.showsVerticalScrollIndicator = NO;
+    [scrollView addSubview:self.gradientView];
+    [scrollView setContentSize:self.gradientView.frame.size];
+    scrollView.contentOffset = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
+    [self.view addSubview:scrollView];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
@@ -112,40 +101,15 @@ static CGAffineTransform kCGAffineTransformMakeScaleTranslation(CGFloat scale, C
 - (void)gestureRecogniserDidChangeState:(UIGestureRecognizer *)recogniser{
     switch ([recogniser state]) {
         case UIGestureRecognizerStateBegan:
+        {
+            [(UIRotationGestureRecognizer *)recogniser setRotation:self.gradientView.rotation];
+        }
         case UIGestureRecognizerStateChanged:
         {
             if (recogniser == self.rotationGestureRecogniser) {
                 CGFloat rotation = [(UIRotationGestureRecognizer *)recogniser rotation];
-                _currentRotation += rotation;
-                self.gradientView.rotation = _currentRotation;
-                [(UIRotationGestureRecognizer *)recogniser setRotation:0];
+                self.gradientView.rotation = rotation;
             }
-            
-            else if (recogniser == self.pinchGestureRecogniser) {
-                CGFloat scale = [(UIPinchGestureRecognizer *)recogniser scale];
-                CGFloat newScale = _currentScale * scale;
-                CGRect transformedFrame = CGRectApplyAffineTransform(self.gradientView.frame, CGAffineTransformMakeScale(newScale, newScale));
-                if (![self isOutOfBoundsAlongX:transformedFrame] && ![self isOutOfBoundsAlongY:transformedFrame]) {
-                    _currentScale = newScale;
-                }
-                [(UIPinchGestureRecognizer *)recogniser setScale:1];
-            }
-            
-            else if (recogniser == self.panGestureRecogniser) {
-                CGPoint translation = [(UIPanGestureRecognizer *)recogniser translationInView:self.gradientView];
-                CGPoint newTranslation = CGPointMake(_currentTranslation.x + translation.x, _currentTranslation.y + translation.y);
-                CGRect transformedFrame = CGRectApplyAffineTransform(self.gradientView.frame, CGAffineTransformMakeTranslation(newTranslation.x, newTranslation.y));
-                if ([self isOutOfBoundsAlongX:transformedFrame]) {
-                    newTranslation.x = _currentTranslation.x;
-                }
-                if ([self isOutOfBoundsAlongY:transformedFrame]) {
-                    newTranslation.y = _currentTranslation.y;
-                }
-                _currentTranslation = newTranslation;
-                [(UIPanGestureRecognizer *)recogniser setTranslation:CGPointZero inView:self.gradientView];
-            }
-            
-            self.gradientView.transform = kCGAffineTransformMakeScaleTranslation(_currentScale, _currentTranslation);
         }
             break;
         default:
@@ -289,7 +253,7 @@ static CGAffineTransform kCGAffineTransformMakeScaleTranslation(CGFloat scale, C
 
 - (GRDGradientView *)gradientView{
     if (!_gradientView) {
-        CGRect frame = CGRectInset(self.view.bounds, -CGRectGetWidth(self.view.bounds), -CGRectGetHeight(self.view.bounds));
+        CGRect frame = CGRectMake(0, 0, 2*CGRectGetWidth(self.view.bounds), 2*CGRectGetHeight(self.view.bounds));
         GRDGradientView *view = [[GRDGradientView alloc] initWithFrame:frame];
         view.shakeDelegate = self;
         _gradientView = view;
@@ -303,7 +267,6 @@ static CGAffineTransform kCGAffineTransformMakeScaleTranslation(CGFloat scale, C
     [self hideInfoButton];
     [self hideCredits];
     [self.gradientView changeGradient:YES];
-    [self resetTransforms];
     AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
 }
 
