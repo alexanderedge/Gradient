@@ -10,6 +10,5 @@
 @interface GRDGradientLayer : CAGradientLayer
 
 - (void)grd_changeGradient:(BOOL)animated;
-- (void)grd_rotate:(CGFloat)angle;
 
 @end

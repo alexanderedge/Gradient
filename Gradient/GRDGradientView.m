@@ -30,9 +30,4 @@
     [(GRDGradientLayer *)self.layer grd_changeGradient:animated];
 }
 
-- (void)setRotation:(CGFloat)rotation{
-    _rotation = rotation;
-    [(GRDGradientLayer *)self.layer grd_rotate:rotation];
-}
-
 @end
