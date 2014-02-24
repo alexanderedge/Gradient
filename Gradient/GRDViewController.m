@@ -75,7 +75,6 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     scrollView.bounces = NO;
     scrollView.bouncesZoom = NO;
     scrollView.delegate = self;
-    scrollView.zoomScale = kGradientDefaultScale;
     scrollView.maximumZoomScale = 4.f;
     scrollView.minimumZoomScale = .5f;
     scrollView.showsHorizontalScrollIndicator = NO;
@@ -83,6 +82,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     [scrollView addSubview:self.gradientView];
     [scrollView setContentSize:self.gradientView.frame.size];
     scrollView.contentOffset = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
+    scrollView.zoomScale = kGradientDefaultScale;
     [self.view addSubview:scrollView];
 }
 
