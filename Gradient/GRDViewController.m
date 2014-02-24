@@ -16,6 +16,7 @@
 @import AssetsLibrary;
 @interface GRDViewController () <GRDShakeDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate>
 @property (nonatomic, strong) GRDGradientView *gradientView;
+@property (nonatomic, strong) UIScrollView *scrollView;
 //  set these properties as weak so that the pointer is set to nil after
 //  they are removed from their superview
 @property (nonatomic, weak) GRDCircularButton *savingIndicator;
@@ -28,6 +29,8 @@
 
 @implementation GRDViewController
 
+static CGFloat const kMaximumZoomScale = 4.f;
+static CGFloat const kMinimumZoomScale = .5f;
 static CGFloat const kGradientDefaultScale = 2.f;
 static CGFloat const kInfoButtonSideLength = 44.f;
 static CGFloat const kInfoButtonMargin = 10.f;
@@ -46,6 +49,10 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/%@",username]];
 }
 
+static CGFloat kRandomZoomScale(){
+    return arc4random_uniform(1000) / 1000.f * (kMaximumZoomScale - kMinimumZoomScale) + kMinimumZoomScale;
+}
+
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView{
     return self.gradientView;
 }
@@ -57,7 +64,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self addScrollView];
+    [self.view addSubview:self.scrollView];
     
     [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped)]];
     
@@ -70,20 +77,33 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     [self.gradientView becomeFirstResponder];
 }
 
-- (void)addScrollView{
-    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
-    scrollView.bounces = NO;
-    scrollView.bouncesZoom = NO;
-    scrollView.delegate = self;
-    scrollView.maximumZoomScale = 4.f;
-    scrollView.minimumZoomScale = .5f;
-    scrollView.showsHorizontalScrollIndicator = NO;
-    scrollView.showsVerticalScrollIndicator = NO;
-    [scrollView addSubview:self.gradientView];
-    [scrollView setContentSize:self.gradientView.frame.size];
-    scrollView.contentOffset = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
-    scrollView.zoomScale = kGradientDefaultScale;
-    [self.view addSubview:scrollView];
+- (UIScrollView *)scrollView{
+    if (!_scrollView) {
+        UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+        scrollView.bounces = NO;
+        scrollView.bouncesZoom = NO;
+        scrollView.delegate = self;
+        scrollView.maximumZoomScale = kMaximumZoomScale;
+        scrollView.minimumZoomScale = kMinimumZoomScale;
+        scrollView.showsHorizontalScrollIndicator = NO;
+        scrollView.showsVerticalScrollIndicator = NO;
+        [scrollView addSubview:self.gradientView];
+        [scrollView setContentSize:self.gradientView.frame.size];
+        scrollView.contentOffset = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
+        scrollView.zoomScale = kGradientDefaultScale;
+        _scrollView = scrollView;
+    }
+    return _scrollView;
+}
+
+- (GRDGradientView *)gradientView{
+    if (!_gradientView) {
+        CGRect frame = CGRectMake(0, 0, 2*CGRectGetWidth(self.view.bounds), 2*CGRectGetHeight(self.view.bounds));
+        GRDGradientView *view = [[GRDGradientView alloc] initWithFrame:frame];
+        view.shakeDelegate = self;
+        _gradientView = view;
+    }
+    return _gradientView;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
@@ -251,22 +271,13 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     }];
 }
 
-- (GRDGradientView *)gradientView{
-    if (!_gradientView) {
-        CGRect frame = CGRectMake(0, 0, 2*CGRectGetWidth(self.view.bounds), 2*CGRectGetHeight(self.view.bounds));
-        GRDGradientView *view = [[GRDGradientView alloc] initWithFrame:frame];
-        view.shakeDelegate = self;
-        _gradientView = view;
-    }
-    return _gradientView;
-}
-
 - (void)viewDidDetectShake:(UIView *)view{
     DDLogInfo(@"Shaking!");
     [self hideShareButton];
     [self hideInfoButton];
     [self hideCredits];
     [self.gradientView changeGradient:YES];
+    self.scrollView.zoomScale = kRandomZoomScale();
     AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
 }
 
