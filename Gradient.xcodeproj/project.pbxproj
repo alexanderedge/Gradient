@@ -10,7 +10,6 @@
 		B7AA911BD8EF41E987D8E266 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 642817AA22C045CCB46ECED1 /* libPods.a */; };
 		DE0A14F2183E131D006114AE /* UIView+Screenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0A14F1183E131D006114AE /* UIView+Screenshot.m */; };
 		DE0AD79E185E6BF1009CC552 /* UIFont+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0AD79D185E6BF1009CC552 /* UIFont+Additions.m */; };
-		DE45B94718439CF0004C032E /* GRDShakeScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = DE45B94618439CF0004C032E /* GRDShakeScrollView.m */; };
 		DE8E7F7B184D134A008A3931 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE8E7F79184D134A008A3931 /* InfoPlist.strings */; };
 		DE976D04183D5AF500465566 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE976D03183D5AF500465566 /* Foundation.framework */; };
 		DE976D06183D5AF500465566 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE976D05183D5AF500465566 /* CoreGraphics.framework */; };
@@ -47,8 +46,6 @@
 		DE0A14F1183E131D006114AE /* UIView+Screenshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Screenshot.m"; sourceTree = "<group>"; };
 		DE0AD79C185E6BF1009CC552 /* UIFont+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIFont+Additions.h"; sourceTree = "<group>"; };
 		DE0AD79D185E6BF1009CC552 /* UIFont+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIFont+Additions.m"; sourceTree = "<group>"; };
-		DE45B94518439CF0004C032E /* GRDShakeScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDShakeScrollView.h; sourceTree = "<group>"; };
-		DE45B94618439CF0004C032E /* GRDShakeScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDShakeScrollView.m; sourceTree = "<group>"; };
 		DE8E7F7A184D134A008A3931 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DE976D00183D5AF500465566 /* Gradient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gradient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE976D03183D5AF500465566 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -208,8 +205,6 @@
 				DE976D3E183D5C6000465566 /* GRDGradientView.m */,
 				DEEB1FAD18438512007C32DE /* GRDCircularButton.h */,
 				DEEB1FAE18438512007C32DE /* GRDCircularButton.m */,
-				DE45B94518439CF0004C032E /* GRDShakeScrollView.h */,
-				DE45B94618439CF0004C032E /* GRDShakeScrollView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -359,7 +354,6 @@
 				DE976D3B183D5B1500465566 /* UIColor+Additions.m in Sources */,
 				DE976D3F183D5C6000465566 /* GRDGradientView.m in Sources */,
 				DE976D1A183D5AF500465566 /* GRDViewController.m in Sources */,
-				DE45B94718439CF0004C032E /* GRDShakeScrollView.m in Sources */,
 				DE976D10183D5AF500465566 /* main.m in Sources */,
 				DE976D42183D7AF700465566 /* GRDGradientLayer.m in Sources */,
 			);
