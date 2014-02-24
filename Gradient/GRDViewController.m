@@ -15,8 +15,12 @@
 
 @import AudioToolbox;
 @import AssetsLibrary;
-@interface GRDViewController () <GRDShakeScrollViewDelegate,UIScrollViewDelegate,UIGestureRecognizerDelegate>
-@property (nonatomic, strong) GRDShakeScrollView *scrollView;
+@interface GRDViewController () <GRDShakeScrollViewDelegate, UIGestureRecognizerDelegate>
+{
+    CGFloat _currentScale;
+    CGFloat _currentRotation;
+    CGPoint _currentTranslation;
+}
 @property (nonatomic, strong) GRDGradientView *gradientView;
 
 //  set these properties as weak so that the pointer is set to nil after
@@ -24,11 +28,16 @@
 @property (nonatomic, weak) GRDCircularButton *savingIndicator;
 @property (nonatomic, weak) UITextView *creditsTextView;
 @property (nonatomic, weak) UIButton *infoButton;
+
+@property (nonatomic, strong) UIRotationGestureRecognizer *rotationGestureRecogniser;
+@property (nonatomic, strong) UIPinchGestureRecognizer *pinchGestureRecogniser;
+@property (nonatomic, strong) UIPanGestureRecognizer *panGestureRecogniser;
+
 @end
 
 @implementation GRDViewController
 
-static CGFloat const kGradientScale = 2.f;
+static CGFloat const kGradientDefaultScale = 2.f;
 static CGFloat const kInfoButtonSideLength = 44.f;
 static CGFloat const kInfoButtonMargin = 10.f;
 
@@ -41,34 +50,83 @@ static NSURL * kTwitterURLForUsername(NSString *username){
         return [NSURL URLWithString:[NSString stringWithFormat:@"twitterrific:///profile?screen_name=%@",username]];
     }
     else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter://"]]){
-        return [NSURL URLWithString:[NSString stringWithFormat:@"twitter://%@",username]];
+        return [NSURL URLWithString:[NSString stringWithFormat:@"twitter://user?screen_name=%@",username]];
     }
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/%@",username]];
 }
 
+static CGAffineTransform kCGAffineTransformMakeRotationScaleTranslation(CGFloat rotation, CGFloat scale, CGPoint translation){
+    CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(rotation);
+    CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scale, scale);
+    CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(translation.x, translation.y);
+    return CGAffineTransformConcat(CGAffineTransformConcat(rotationTransform, scaleTransform), translationTransform);
+}
+
+- (id)init{
+    self = [super init];
+    if (self) {
+        _currentScale = kGradientDefaultScale;
+        _currentTranslation = CGPointZero;
+        _currentRotation = arc4random_uniform(1000) / 1000.f * M_2_PI;
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self.view addSubview:self.gradientView];
+    self.gradientView.transform = kCGAffineTransformMakeRotationScaleTranslation(_currentRotation, _currentScale, _currentTranslation);
+
     [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped)]];
-    self.scrollView.shakeDelegate = self;
-    [self showInstructions];
-    [self.scrollView becomeFirstResponder];
-    UIRotationGestureRecognizer *rotationGestureRecogniser = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(rotationGestureRecogniser:)];
-    [self.view addGestureRecognizer:rotationGestureRecogniser];
+    
+    //[self showInstructions];
+    
+    UIRotationGestureRecognizer *rotateGR = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecogniserDidChangeState:)];
+    rotateGR.delegate = self;
+    [self.gradientView addGestureRecognizer:rotateGR];
+    self.rotationGestureRecogniser = rotateGR;
+    
+    UIPinchGestureRecognizer *pinchGR = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecogniserDidChangeState:)];
+    pinchGR.delegate = self;
+    [self.gradientView addGestureRecognizer:pinchGR];
+    self.pinchGestureRecogniser = pinchGR;
+    
+    UIPanGestureRecognizer *panGR = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecogniserDidChangeState:)];
+    panGR.delegate = self;
+    [self.gradientView addGestureRecognizer:panGR];
+    self.panGestureRecogniser = panGR;
+    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
     return YES;
 }
 
-- (void)rotationGestureRecogniser:(UIRotationGestureRecognizer *)recogniser{
+- (void)gestureRecogniserDidChangeState:(UIGestureRecognizer *)recogniser{
     switch ([recogniser state]) {
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged:
         {
-            CGFloat rotation = self.gradientView.rotation + recogniser.rotation;
-            DDLogInfo(@"rotation: %f",rotation);
-            [self.gradientView setRotation:rotation];
-            [recogniser setRotation:0];
+            if (recogniser == self.rotationGestureRecogniser) {
+                CGFloat rotation = [(UIRotationGestureRecognizer *)recogniser rotation];
+                _currentRotation += rotation;
+                [(UIRotationGestureRecognizer *)recogniser setRotation:0];
+            }
+            
+            else if (recogniser == self.pinchGestureRecogniser) {
+                CGFloat scale = [(UIPinchGestureRecognizer *)recogniser scale];
+                _currentScale *= scale;
+                [(UIPinchGestureRecognizer *)recogniser setScale:1];
+            }
+            
+            else if (recogniser == self.panGestureRecogniser) {
+                CGPoint translation = [(UIPanGestureRecognizer *)recogniser translationInView:self.gradientView];
+                _currentTranslation = CGPointMake(_currentTranslation.x + translation.x, _currentTranslation.y + translation.y);
+                [(UIPanGestureRecognizer *)recogniser setTranslation:CGPointZero inView:self.gradientView];
+            }
+            
+            self.gradientView.transform = kCGAffineTransformMakeRotationScaleTranslation(_currentRotation, _currentScale, _currentTranslation);
         }
             break;
         default:
@@ -210,28 +268,10 @@ static NSURL * kTwitterURLForUsername(NSString *username){
     }];
 }
 
-- (GRDShakeScrollView *)scrollView{
-    if (!_scrollView) {
-        CGRect scrollViewFrame = self.view.frame;
-        _scrollView = [[GRDShakeScrollView alloc] initWithFrame:scrollViewFrame];
-        _scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        [_scrollView addSubview:self.gradientView];
-        [_scrollView setContentSize:self.gradientView.frame.size];
-        [_scrollView setContentOffset:CGPointMake(CGRectGetMidX(_scrollView.bounds), CGRectGetMidY(_scrollView.bounds))];
-        [_scrollView setZoomScale:1];
-        [_scrollView setMaximumZoomScale:4];
-        [_scrollView setMinimumZoomScale:1];
-        [_scrollView setDelegate:self];
-        [self.view addSubview:_scrollView];
-    }
-    return _scrollView;
-}
-
 - (GRDGradientView *)gradientView{
     if (!_gradientView) {
-        CGRect scrollViewFrame = self.scrollView.frame;
-        CGRect doubleFrame = CGRectMake(0, 0, CGRectGetWidth(scrollViewFrame) * kGradientScale, CGRectGetHeight(scrollViewFrame) * kGradientScale);
-        _gradientView = [[GRDGradientView alloc] initWithFrame:doubleFrame];
+        CGRect frame = CGRectInset(self.view.bounds, -CGRectGetWidth(self.view.bounds), -CGRectGetHeight(self.view.bounds));
+        _gradientView = [[GRDGradientView alloc] initWithFrame:frame];
     }
     return _gradientView;
 }
@@ -248,7 +288,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
 - (void)tapped{
     DDLogInfo(@"Tapping!");
     if (!_savingIndicator && !_creditsTextView) {
-        UIImage *gradient = [self.scrollView grd_screenshot];
+        UIImage *gradient = [self.gradientView grd_screenshot];
         UIImageWriteToSavedPhotosAlbum(gradient, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
         [self showInfoButton];
         [self showShareButtonWithHandler:^{
@@ -256,7 +296,7 @@ static NSURL * kTwitterURLForUsername(NSString *username){
             vc.excludedActivityTypes = @[UIActivityTypeSaveToCameraRoll];
             vc.completionHandler = ^ (NSString *activityType, BOOL completed){
                 DDLogInfo(@"Shared %@ - completed %@",activityType, completed ? @"YES" : @"NO");
-                [self.scrollView becomeFirstResponder];
+                [self.gradientView becomeFirstResponder];
             };
             [self presentViewController:vc animated:YES completion:nil];
         }];
@@ -297,7 +337,7 @@ static CGFloat const kSaveIndicatorScale = 0.01f;
 - (GRDCircularButton *)savingIndicator{
     if (!_savingIndicator) {
         GRDCircularButton *savingIndicator = [[GRDCircularButton alloc] initWithFrame:CGRectMake(0, 0, kSavedIndicatorDiameter, kSavedIndicatorDiameter)];
-        savingIndicator.center = self.scrollView.center;
+        savingIndicator.center = self.gradientView.center;
         [self.view addSubview:savingIndicator];
         self.savingIndicator = savingIndicator;
     }
