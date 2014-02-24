@@ -30,4 +30,22 @@
     [(GRDGradientLayer *)self.layer grd_changeGradient:animated];
 }
 
+- (void)setRotation:(CGFloat)rotation{
+    _rotation = rotation;
+    [(GRDGradientLayer *)self.layer grd_rotate:rotation];
+}
+
+- (void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event{
+    if (event.subtype == UIEventSubtypeMotionShake){
+        if ([self.shakeDelegate respondsToSelector:@selector(viewDidDetectShake:)]) {
+            [self.shakeDelegate viewDidDetectShake:self];
+        }
+    }
+    [super motionBegan:motion withEvent:event];
+}
+
+- (BOOL)canBecomeFirstResponder{
+    return YES;
+}
+
 @end
